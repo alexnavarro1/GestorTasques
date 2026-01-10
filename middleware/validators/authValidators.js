@@ -1,5 +1,6 @@
 const { body } = require('express-validator');
 
+// Validacions per al registre d'usuaris
 exports.registerValidation = [
     body('name')
         .optional()
@@ -10,6 +11,7 @@ exports.registerValidation = [
         .isLength({ min: 6 }).withMessage('La contrasenya ha de tenir mínim 6 caràcters') // Missatge exacte demanat
 ];
 
+// Validacions per a l'inici de sessió
 exports.loginValidation = [
     body('email')
         .isEmail().withMessage('Si us plau, introdueix un email vàlid')
@@ -18,6 +20,7 @@ exports.loginValidation = [
         .notEmpty().withMessage('La contrasenya és obligatòria')
 ];
 
+// Validacions per a l'actualització de perfil
 exports.updateProfileValidation = [
     body('name')
         .optional()
@@ -27,6 +30,7 @@ exports.updateProfileValidation = [
         .isEmail().withMessage('Si us plau, introdueix un email vàlid')
 ];
 
+// Validacions per al canvi de contrasenya
 exports.changePasswordValidation = [
     body('currentPassword')
         .notEmpty().withMessage('La contrasenya actual és obligatòria'),
