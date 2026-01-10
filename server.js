@@ -23,7 +23,6 @@ app.use('/images', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Rutes de l'API - Gestió de tasques
-// Rutes de l'API
 app.use('/api/tasks', require('./routes/taskRoutes')); // Rutes de tasques
 app.use('/api/auth', require('./routes/authRoutes'));   // Rutes d'autenticació
 app.use('/api/admin', require('./routes/adminRoutes')); // Rutes d'administració
@@ -32,24 +31,49 @@ app.use('/api/upload', require('./routes/uploadRoutes')); // Rutes de pujada d'i
 // Ruta principal de prova
 app.get('/', (req, res) => {
     res.send({
-        message: 'API Gestor de Tasques en funcionament!',
+        message: 'Benvingut a l\'API del Gestor de Tasques',
+        description: 'Aquesta API RESTful permet gestionar tasques, usuaris i pujada d\'imatges. Utilitza autenticació JWT.',
         version: '1.0.0',
-        endpoints: {
-            'Auth': {
-                'POST /api/auth/register': 'Registrar usuari',
-                'POST /api/auth/login': 'Iniciar sessió',
-                'GET /api/auth/me': 'Perfil d\'usuari',
-                'PUT /api/auth/profile': 'Actualitzar perfil',
-                'PUT /api/auth/change-password': 'Canviar contrasenya'
+        author: 'Àlex Navarro',
+        documentation: {
+            auth: {
+                info: 'Gestió d\'usuaris i sessions',
+                endpoints: {
+                    'POST /api/auth/register': 'Registrar un nou usuari',
+                    'POST /api/auth/login': 'Iniciar sessió per obtenir el token',
+                    'GET /api/auth/me': 'Obtenir dades de l\'usuari autenticat',
+                    'PUT /api/auth/profile': 'Actualitzar informació del perfil',
+                    'PUT /api/auth/change-password': 'Canviar la contrasenya'
+                }
             },
-            'Tasks': {
-                'GET /api/tasks': 'Llistar tasques (proves)',
-                'POST /api/tasks': 'Crear tasca',
-                'GET /api/tasks/stats': 'Estadístiques'
+            tasks: {
+                info: 'Operacions CRUD sobre les tasques (Requereix Header: Authorization: Bearer <token>)',
+                endpoints: {
+                    'GET /api/tasks': 'Llistar les teves tasques',
+                    'POST /api/tasks': 'Crear una nova tasca',
+                    'GET /api/tasks/:id': 'Obtenir detalls d\'una tasca',
+                    'PUT /api/tasks/:id': 'Modificar una tasca',
+                    'DELETE /api/tasks/:id': 'Eliminar una tasca',
+                    'GET /api/tasks/stats': 'Veure estadístiques de rendiment',
+                    'PUT /api/tasks/:id/image': 'Actualitzar la imatge d\'una tasca',
+                    'PUT /api/tasks/:id/image/reset': 'Esborrar la imatge d\'una tasca'
+                }
             },
-            'Admin': {
-                'GET /api/admin/users': 'Llistar usuaris',
-                'GET /api/admin/tasks': 'Llistar totes les tasques'
+            upload: {
+                info: 'Pujada d\'arxius (Imatges)',
+                endpoints: {
+                    'POST /api/upload/local': 'Pujar imatge al servidor',
+                    'POST /api/upload/cloud': 'Pujar imatge a Cloudinary'
+                }
+            },
+            admin: {
+                info: 'Zona d\'administració (Només rol Admin)',
+                endpoints: {
+                    'GET /api/admin/users': 'Veure tots els usuaris',
+                    'GET /api/admin/tasks': 'Veure totes les tasques globals',
+                    'DELETE /api/admin/users/:id': 'Eliminar un usuari',
+                    'PUT /api/admin/users/:id/role': 'Modificar rol d\'usuari'
+                }
             }
         }
     });
