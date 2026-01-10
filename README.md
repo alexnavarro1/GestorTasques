@@ -7,7 +7,6 @@ Una API senzilla per gestionar tasques i usuaris amb autenticació.
 - Node.js i Express
 - MongoDB (Mongoose)
 - JWT per a l'autenticació
-- Cloudinary per pujar imatges
 
 ## Com fer-ho funcionar
 
@@ -16,7 +15,7 @@ Una API senzilla per gestionar tasques i usuaris amb autenticació.
    ```bash
    npm install
    ```
-3. Crea un fitxer `.env` i posa les teves dades (MongoDB URI, JWT Secret, Cloudinary...).
+3. Crea un fitxer `.env` i posa les teves dades (MongoDB URI, JWT Secret, Cloudinary).
 4. Engega el servidor:
    ```bash
    npm run dev
