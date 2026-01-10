@@ -24,7 +24,7 @@ Una API completa per gestionar tasques i usuaris amb autenticació segura.
    ```
 
 3. Configura les variables d'entorn:
-   Crea un fitxer `.env` a l'arrel i afegeix:
+   Crea un fitxer `.env` a l'arrel i afegeix (pots veure `.env.example`):
 
    ```env
    PORT=3000
@@ -40,6 +40,54 @@ Una API completa per gestionar tasques i usuaris amb autenticació segura.
    ```bash
    npm run dev
    ```
+
+## 🔐 Sistema d'Autenticació
+
+Aquesta API utilitza **JWT (JSON Web Tokens)** per protegir els seus endpoints.
+
+1. **Registre/Login**: En fer login correctament (`POST /api/auth/login`), l'API retornarà un token.
+2. **Accés Protegit**: Per accedir a les rutes protegides (marcades amb "Si" a la taula de sota), has d'enviar aquest token al header de la petició:
+   ```http
+   Authorization: Bearer <el_teu_token>
+   ```
+3. **Rol d'Admin**: Algunes rutes requereixen que l'usuari tingui el rol `admin`. Això es verifica automàticament al middleware.
+
+## 📝 Exemples d'Ús
+
+### 1. Iniciar Sessió
+
+**Petició:** `POST /api/auth/login`
+
+```json
+{
+  "email": "usuari@exemple.com",
+  "password": "password123"
+}
+```
+
+**Resposta:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": { "id": "...", "name": "Usuari", "email": "..." }
+  }
+}
+```
+
+### 2. Crear una Tasca
+
+**Petició:** `POST /api/tasks` (Requereix Header `Authorization`)
+
+```json
+{
+  "title": "Aprendre Node.js",
+  "cost": 0,
+  "hours_estimated": 10
+}
+```
 
 ## 📊 Llistat Complet de Rutes
 
