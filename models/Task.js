@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// Esquema de la tasca amb mongoose
+// Definició de l'esquema de dades amb Mongoose
 const TaskSchema = new mongoose.Schema({
     title: {
         type: String,
@@ -29,8 +29,8 @@ const TaskSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.ObjectId,
         ref: 'User', // Referència al model d'Usuari
-        required: true, // Cada tasca ha de tenir un propietari
-        index: true // Millora el rendiment de les cerques per usuari
+        required: true, // Cada registre ha de tenir un usuari propietari
+        index: true // Indexació per millorar el rendiment de les consultes per usuari
     },
     image: {
         type: String,
@@ -38,7 +38,7 @@ const TaskSchema = new mongoose.Schema({
     },
     completed: {
         type: Boolean,
-        default: false // Per defecte no completada
+        default: false // Valor per defecte: fals
     },
     finished_at: {
         type: Date,
@@ -51,7 +51,7 @@ const TaskSchema = new mongoose.Schema({
     }
 });
 
-// Actualitza finished_at al completar la tasca
+// Actualitza la data de finalització automàticament quan es completa
 TaskSchema.pre('save', function(next) {
     if (this.completed && !this.finished_at) {
         this.finished_at = new Date(); // Data actual si es completa

@@ -1,20 +1,21 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express'); // Framework Express
+const router = express.Router(); // Router d'Express
 const {
     register,
     login,
     getMe,
     updateProfile,
-    changePassword
-} = require('../controllers/authController');
+    changePassword,
+    checkPermissionEndpoint
+} = require('../controllers/authController'); // Controlador d'autenticació
 
-const { protect } = require('../middleware/auth');
+const { protect } = require('../middleware/auth'); // Middleware protecció rutes
 const {
     registerValidation,
     loginValidation,
     updateProfileValidation,
     changePasswordValidation
-} = require('../middleware/validators/authValidators');
+} = require('../middleware/validators/authValidators'); // Validacions d'autenticació
 
 // Ruta per registrar un nou usuari
 router.post('/register', registerValidation, register);
@@ -30,5 +31,8 @@ router.put('/profile', protect, updateProfileValidation, updateProfile);
 
 // Ruta per canviar la contrasenya
 router.put('/change-password', protect, changePasswordValidation, changePassword);
+
+// Ruta per verificar permisos
+router.post('/check-permission', protect, checkPermissionEndpoint);
 
 module.exports = router;

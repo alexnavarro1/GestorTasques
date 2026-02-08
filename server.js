@@ -22,11 +22,22 @@ app.use('/images', express.static(path.join(__dirname, 'uploads')));
 // També servim /uploads directament per si es demana la ruta física
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Rutes de l'API - Gestió de tasques
-app.use('/api/tasks', require('./routes/taskRoutes')); // Rutes de tasques
+// Middleware d'auditoria (registra activitat en acabar la petició)
+app.use(require('./middleware/auditMiddleware'));
+
+// Rutes de l'API - Gestió de registres principals
+app.use('/api/tasks', require('./routes/taskRoutes')); // Rutes dels registres
 app.use('/api/auth', require('./routes/authRoutes'));   // Rutes d'autenticació
-app.use('/api/admin', require('./routes/adminRoutes')); // Rutes d'administració
+app.use('/api/admin/roles', require('./routes/roleRoutes')); // Rutes de rols
+app.use('/api/admin/permissions', require('./routes/permissionRoutes')); // Rutes de permisos
+app.use('/api/admin/audit-logs', require('./routes/auditRoutes')); // Rutes d'auditoria
+app.use('/api/admin', require('./routes/adminRoutes')); // Rutes d'administració (users)
 app.use('/api/upload', require('./routes/uploadRoutes')); // Rutes de pujada d'imatges
+
+// Seeds
+const seedPermissions = require('./utils/seedPermissions');
+const seedRoles = require('./utils/seedRoles');
+seedPermissions().then(() => seedRoles());
 
 // Ruta principal de prova
 app.get('/', (req, res) => {

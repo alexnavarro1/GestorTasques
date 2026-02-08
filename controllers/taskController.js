@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const cloudinary = require('../config/cloudinary');
 
-// Helper per eliminar imatges (igual que abans)
+// Funció auxiliar per eliminar fitxers d'imatge (locals o al núvol)
 const deleteImage = (imageUrl) => {
     return new Promise((resolve) => {
         if (!imageUrl) return resolve();
@@ -24,12 +24,12 @@ const deleteImage = (imageUrl) => {
     });
 };
 
-// Crear tasca
+// Crea un nou registre a la base de dades
 exports.createTask = async (req, res) => {
     try {
         const { title, description, cost, hours_estimated, hours_real, image, completed } = req.body;
 
-        // Validació simple
+        // Validació dels camps obligatoris
         if (!title || cost === undefined || hours_estimated === undefined) {
             return res.status(400).json({
                 success: false,
@@ -55,10 +55,10 @@ exports.createTask = async (req, res) => {
     }
 };
 
-// Obtenir tasques de l'usuari
+// Obté tots els registres associats a l'usuari actual
 exports.getAllTasks = async (req, res) => {
     try {
-        // Filtrem per l'usuari autenticat
+        // Filtra els resultats per l'ID de l'usuari autenticat
         const tasks = await Task.find({ user: req.user.id }).sort({ createdAt: -1 });
         res.status(200).json(tasks);
     } catch (err) {
@@ -67,10 +67,10 @@ exports.getAllTasks = async (req, res) => {
     }
 };
 
-// Obtenir una tasca
+// Obté un registre específic per ID
 exports.getTaskById = async (req, res) => {
     try {
-        // Busquem per ID i que pertanyi a l'usuari
+        // Cerca el document per ID assegurant la propietat de l'usuari
         const task = await Task.findOne({ _id: req.params.id, user: req.user.id });
 
         if (!task) {
@@ -83,17 +83,25 @@ exports.getTaskById = async (req, res) => {
     }
 };
 
-// Actualitzar tasca
+// Actualitza les dades d'un registre existent
 exports.updateTask = async (req, res) => {
     try {
-        let task = await Task.findOne({ _id: req.params.id, user: req.user.id });
+        let task = await Task.findById(req.params.id);
 
         if (!task) {
             return res.status(404).json({ success: false, error: 'Tasca no trobada' });
         }
 
+        // Comprovem si és propietari o té permís d'admin (users:manage)
+        const permissions = await req.user.getEffectivePermissions();
+        const isAdmin = permissions.includes('users:manage');
+
+        if (task.user.toString() !== req.user.id && !isAdmin) {
+             return res.status(404).json({ success: false, error: 'Tasca no trobada' });
+        }
+
         const updates = req.body;
-        // Gestió de data de finalització
+        // Gestiona automàticament la data de finalització segons l'estat
         if (updates.completed === true) updates.finished_at = new Date();
         else if (updates.completed === false) updates.finished_at = null;
 
@@ -109,7 +117,7 @@ exports.updateTask = async (req, res) => {
     }
 };
 
-// Eliminar tasca
+// Eliminar un registre de la base de dades
 exports.deleteTask = async (req, res) => {
     try {
         const task = await Task.findOne({ _id: req.params.id, user: req.user.id });
@@ -131,18 +139,18 @@ exports.deleteTask = async (req, res) => {
     }
 };
 
-// Obtenir estadístiques
+// Calcula i retorna estadístiques globals
 exports.getTaskStats = async (req, res) => {
     try {
         const tasks = await Task.find({ user: req.user.id });
 
-        // Càlculs bàsics
+        // Càlcul de mètriques bàsiques
         const totalTasks = tasks.length;
         const completedTasks = tasks.filter(t => t.completed).length;
         const pendingTasks = totalTasks - completedTasks;
         const completionRate = totalTasks > 0 ? (completedTasks / totalTasks * 100).toFixed(2) : 0;
         
-        // Sumatoris
+        // Càlcul de totals acumulats
         const totalCost = tasks.reduce((acc, t) => acc + t.cost, 0);
         const totalHoursEstimated = tasks.reduce((acc, t) => acc + t.hours_estimated, 0);
         const totalHoursReal = tasks.reduce((acc, t) => acc + (t.hours_real || 0), 0);
@@ -161,7 +169,7 @@ exports.getTaskStats = async (req, res) => {
     }
 };
 
-// Actualitzar imatge
+// Actualitza el camp d'imatge del registre
 exports.updateTaskImage = async (req, res) => {
     try {
         const task = await Task.findOne({ _id: req.params.id, user: req.user.id });
@@ -183,7 +191,7 @@ exports.updateTaskImage = async (req, res) => {
     }
 };
 
-// Reset imatge
+// Elimina la referència de la imatge del registre
 exports.resetTaskImage = async (req, res) => {
     try {
         const task = await Task.findOne({ _id: req.params.id, user: req.user.id });

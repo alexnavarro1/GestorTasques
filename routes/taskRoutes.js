@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const taskController = require('../controllers/taskController');
 const { protect } = require('../middleware/auth');
+const checkPermission = require('../middleware/checkPermission');
 const { createTaskValidation, updateTaskValidation } = require('../middleware/validators/taskValidators');
 const { validationResult } = require('express-validator');
 
@@ -16,26 +17,26 @@ const validate = (req, res, next) => {
 
 router.use(protect); // A partir d'aquí, totes les rutes requereixen estar autenticat
 
-// Obtenir estadístiques de les tasques de l'usuari
-router.get('/stats', taskController.getTaskStats);
+// Ruta per obtenir estadístiques personals
+router.get('/stats', checkPermission('tasks:read'), taskController.getTaskStats);
 
-// Crear una nova tasca (amb validació de dades)
-router.post('/', createTaskValidation, validate, taskController.createTask);
+// Ruta per crear un nou registre amb validació
+router.post('/', checkPermission('tasks:create'), createTaskValidation, validate, taskController.createTask);
 
-// Obtenir totes les tasques de l'usuari
-router.get('/', taskController.getAllTasks);
+// Ruta per llistar tots els registres propis
+router.get('/', checkPermission('tasks:read'), taskController.getAllTasks);
 
-// Obtenir una tasca específica per ID
-router.get('/:id', taskController.getTaskById);
+// Ruta per obtenir detalls d'un registre específic
+router.get('/:id', checkPermission('tasks:read'), taskController.getTaskById);
 
-// Actualitzar una tasca (amb validació)
-router.put('/:id', updateTaskValidation, validate, taskController.updateTask);
+// Ruta per actualitzar un registre existent (amb validació)
+router.put('/:id', checkPermission('tasks:update'), updateTaskValidation, validate, taskController.updateTask);
 
-// Eliminar una tasca
-router.delete('/:id', taskController.deleteTask);
+// Ruta per eliminar un registre
+router.delete('/:id', checkPermission('tasks:delete'), taskController.deleteTask);
 
-// Rutes per gestionar la imatge de la tasca
-router.put('/:id/image', taskController.updateTaskImage);
-router.put('/:id/image/reset', taskController.resetTaskImage);
+// Rutes per gestionar la imatge associada
+router.put('/:id/image', checkPermission('tasks:update'), taskController.updateTaskImage);
+router.put('/:id/image/reset', checkPermission('tasks:update'), taskController.resetTaskImage);
 
 module.exports = router;
